@@ -13,7 +13,7 @@ permissions:
 env:
   REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/sing-box
   SING_BOX_VERSION: v1.14.0
-  REDIRECT_PKG_HANDLER_VERSION: v0.25.0
+  REDIRECT_PKG_HANDLER_VERSION: v0.24.3
 
 jobs:
   builds:
@@ -107,7 +107,6 @@ jobs:
           tags: |
             type=raw,value=latest
             type=raw,value=${{ env.SING_BOX_VERSION }}-${{ env.REDIRECT_PKG_HANDLER_VERSION }}
-            type=sha,format=short
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v4
