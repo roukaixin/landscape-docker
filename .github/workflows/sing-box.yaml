@@ -3,7 +3,7 @@ name: build sing-box docker image
 on:
   push:
     paths:
-      - "sing-box/docker/**"
+      - "docker/sing-box/**"
       - ".github/workflows/build-sing-box.yml"
 permissions:
   contents: read
