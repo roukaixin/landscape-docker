@@ -66,7 +66,7 @@ jobs:
             REDIRECT_ARCH=${{ matrix.settings.pkg_arch }}
           platforms: ${{ matrix.settings.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push=false,push-by-digest=true
+          outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         run: |
@@ -127,3 +127,12 @@ jobs:
             echo "Inspecting ${tag}"
             docker buildx imagetools inspect "${tag}"
           done
+
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          dry-run: true
