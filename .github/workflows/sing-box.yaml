@@ -23,15 +23,15 @@ jobs:
       matrix:
         settings:
           - platform: linux/arm64
-            arch: aarch64
+            pkg_arch: aarch64-static
           - platform: linux/loong64
-            arch: loongarch64
+            pkg_arch: loongarch64-static
           - platform: linux/riscv64
-            arch: riscv64
+            pkg_arch: riscv64-static
           - platform: linux/s390x
-            arch: s390x
+            pkg_arch: s390x
           - platform: linux/amd64
-            arch: x86_64
+            pkg_arch: x86_64-static
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -63,7 +63,7 @@ jobs:
           build-args: |
             SING_BOX_VERSION=${{ env.SING_BOX_VERSION }}
             REDIRECT_PKG_HANDLER_VERSION=${{ env.REDIRECT_PKG_HANDLER_VERSION }}
-            REDIRECT_ARCH=${{ matrix.settings.arch }}
+            REDIRECT_ARCH=${{ matrix.settings.pkg_arch }}
           platforms: ${{ matrix.settings.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true

@@ -4,7 +4,7 @@ FROM ghcr.io/sagernet/sing-box:${SING_BOX_VERSION}
 
 ARG REDIRECT_PKG_HANDLER_VERSION
 ARG REDIRECT_ARCH
-ARG REDIRECT_PKG_URL=https://github.com/ThisSeanZhang/landscape/releases/download/${REDIRECT_PKG_HANDLER_VERSION}/redirect_pkg_handler-${REDIRECT_ARCH}-static
+ARG REDIRECT_PKG_URL=https://github.com/ThisSeanZhang/landscape/releases/download/${REDIRECT_PKG_HANDLER_VERSION}/redirect_pkg_handler-${REDIRECT_ARCH}
 
 RUN apk update && \
     apk add --no-cache libgcc libelf s6-overlay iptables
