@@ -32,6 +32,9 @@ jobs:
           - platform: linux/amd64
             arch: x86_64
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v6
@@ -55,7 +58,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v7
         with:
-          context: ./sing-box/docker
+          context: ./docker/sing-box
           build-args: |
             SING_BOX_VERSION=${{ env.SING_BOX_VERSION }}
             REDIRECT_PKG_HANDLER_VERSION=${{ env.REDIRECT_PKG_HANDLER_VERSION }}
