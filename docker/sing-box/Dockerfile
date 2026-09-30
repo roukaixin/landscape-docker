@@ -3,6 +3,7 @@ ARG SING_BOX_VERSION=latest
 FROM ghcr.io/sagernet/sing-box:${SING_BOX_VERSION}
 
 ARG REDIRECT_PKG_HANDLER_VERSION
+ARG REDIRECT_ARCH
 ARG REDIRECT_PKG_URL=https://github.com/ThisSeanZhang/landscape/releases/download/${REDIRECT_PKG_HANDLER_VERSION}/redirect_pkg_handler-${REDIRECT_ARCH}-static
 
 RUN apk update && \
