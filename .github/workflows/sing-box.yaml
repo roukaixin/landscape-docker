@@ -140,3 +140,4 @@ jobs:
           owner: roukaixin
           package: landscape-docker/sing-box
           delete-untagged: true
+          log-level: debug
