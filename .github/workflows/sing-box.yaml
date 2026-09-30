@@ -129,10 +129,15 @@ jobs:
           done
 
   cleanup:
+    needs:
+      - builds
     runs-on: ubuntu-latest
     permissions:
       packages: write
     steps:
       - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
+          owner: roukaixin
+          owner_type: user
+          package: landscape-docker/sing-box
           dry-run: true
