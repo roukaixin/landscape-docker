@@ -4,7 +4,8 @@ on:
   push:
     paths:
       - "docker/sing-box/**"
-      - ".github/workflows/build-sing-box.yml"
+      - ".github/workflows/build-sing-box.yaml"
+
 permissions:
   contents: read
   packages: write
