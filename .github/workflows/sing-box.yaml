@@ -130,7 +130,7 @@ jobs:
 
   cleanup:
     needs:
-      - builds
+      - merge
     runs-on: ubuntu-latest
     permissions:
       packages: write
