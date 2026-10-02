@@ -13,7 +13,7 @@ permissions:
 env:
   REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/sing-box
   SING_BOX_VERSION: v1.14.0
-  REDIRECT_PKG_HANDLER_VERSION: v0.25.0
+  REDIRECT_PKG_HANDLER_VERSION: v0.25.1
 
 jobs:
   builds:
