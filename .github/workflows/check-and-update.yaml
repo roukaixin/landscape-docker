@@ -20,6 +20,10 @@ jobs:
             application_repo: SagerNet/sing-box
             application_version_name: SING_BOX_VERSION
             version_file: docker/sing-box/version
+          - name: mihomo
+            application_repo: MetaCubeX/mihomo
+            application_version_name: MIHOMO_VERSION
+            version_file: docker/mihomo/version
 
     steps:
       - name: Checkout
