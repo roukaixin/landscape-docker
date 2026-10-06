@@ -3,12 +3,13 @@ ARG RUN_IMAGER=alpine
 ARG BUILDPLATFORM
 FROM --platform=${BUILDPLATFORM}  ${BUILDER_IMAGER} AS builder
 ARG MIHOMO_VERSION
+ARG GOARCH
 WORKDIR /mihomo
 RUN curl -L https://github.com/MetaCubeX/mihomo/archive/refs/tags/v1.19.32.tar.gz \
       | tar -xz -C /mihomo --strip-components=1
 
 RUN go env && \
-    CGO_ENABLED=0 go build -v -tags "with_gvisor" -trimpath  \
+    CGO_ENABLED=0 GOARCH=${GOARCH} go build -v -tags "with_gvisor" -trimpath  \
     -ldflags "-extldflags '--static'  \
               -X 'github.com/metacubex/mihomo/constant.Version=${MIHOMO_VERSION}'  \
               -X 'github.com/metacubex/mihomo/constant.BuildTime=$(date)' -w -s -buildid="

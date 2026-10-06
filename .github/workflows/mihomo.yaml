@@ -26,26 +26,31 @@ jobs:
             static: true
             docker_builder_imager: golang:1.26.8
             docker_run_imager: alpine
+            GOARCH: arm64
           - docker_platform: linux/loong64
             pkg_arch: loongarch64
             static: true
             docker_builder_imager: ghcr.io/loong64/golang:1.26
             docker_run_imager: ghcr.io/loong64/alpine
+            GOARCH: loong64
           - docker_platform: linux/riscv64
             pkg_arch: riscv64
             static: true
             docker_builder_imager: golang:1.26.8
             docker_run_imager: alpine
+            GOARCH: riscv64
           - docker_platform: linux/s390x
             pkg_arch: s390x
             static: false
             docker_builder_imager: golang:1.26.8
             docker_run_imager: alpine
+            GOARCH: s390x
           - docker_platform: linux/amd64
             pkg_arch: x86_64
             static: true
             docker_builder_imager: golang:1.26.8
             docker_run_imager: alpine
+            GOARCH: amd64
     steps:
       - name: Checkout
         uses: actions/checkout@v7
