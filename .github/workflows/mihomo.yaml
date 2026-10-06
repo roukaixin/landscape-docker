@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "docker/mihomo/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
