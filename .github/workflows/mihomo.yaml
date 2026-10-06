@@ -51,7 +51,7 @@ jobs:
 
       - name: Read versions
         run: |
-          cat docker/${{ env.mihomo }}/version >> "$GITHUB_ENV"
+          cat docker/${{ env.NAME }}/version >> "$GITHUB_ENV"
 
       - name: Set redirect architecture
         run: |
@@ -84,7 +84,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v7
         with:
-          context: ./docker/${{ env.mihomo }}
+          context: ./docker/${{ env.NAME }}
           build-args: |
             MIHOMO_VERSION=${{ env.MIHOMO_VERSION }}
             REDIRECT_PKG_HANDLER_VERSION=${{ env.REDIRECT_PKG_HANDLER_VERSION }}
@@ -99,15 +99,15 @@ jobs:
 
       - name: Export digest
         run: |
-          mkdir -p /tmp/${{ env.mihomo }}/digests
+          mkdir -p /tmp/${{ env.NAME }}/digests
           digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/${{ env.mihomo }}/digests/${digest#sha256:}"
+          touch "/tmp/${{ env.NAME }}/digests/${digest#sha256:}"
 
       - name: Upload digest
         uses: actions/upload-artifact@v7
         with:
           name: digests-${{ matrix.settings.pkg_arch }}
-          path: /tmp/${{ env.mihomo }}/digests/*
+          path: /tmp/${{ env.NAME }}/digests/*
           if-no-files-found: error
           retention-days: 1
 
@@ -121,12 +121,12 @@ jobs:
 
       - name: Read versions
         run: |
-          cat docker/${{ env.mihomo }}/version >> "$GITHUB_ENV"
+          cat docker/${{ env.NAME }}/version >> "$GITHUB_ENV"
 
       - name: Download digests
         uses: actions/download-artifact@v7
         with:
-          path: /tmp/${{ env.mihomo }}/digests
+          path: /tmp/${{ env.NAME }}/digests
           pattern: digests-*
           merge-multiple: true
 
@@ -150,7 +150,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create manifest list and push
-        working-directory: /tmp/${{ env.mihomo }}/digests
+        working-directory: /tmp/${{ env.NAME }}/digests
         run: |
           docker buildx imagetools create \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< '${{ steps.meta.outputs.json }}') \
