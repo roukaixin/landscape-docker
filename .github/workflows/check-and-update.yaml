@@ -1,0 +1,110 @@
+name: Check and update versions
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        settings:
+          - name: sing-box
+            application_repo: SagerNet/sing-box
+            application_version_name: SING_BOX_VERSION
+            version_file: docker/sing-box/version
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Get latest versions
+        id: versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          
+          APPLICATION_VERSION="$(
+            gh api repos/${{ matrix.settings.application_repo }}/releases/latest \
+              --jq '.tag_name'
+          )"
+          
+          REDIRECT_PKG_HANDLER_VERSION="$(
+            gh api repos/ThisSeanZhang/landscape/releases/latest \
+              --jq '.tag_name'
+          )"
+          
+          echo "${{ matrix.settings.application_version_name }}=${APPLICATION_VERSION}"
+          echo "REDIRECT_PKG_HANDLER_VERSION=${REDIRECT_PKG_HANDLER_VERSION}"
+          
+          {
+            echo "APPLICATION_VERSION=${APPLICATION_VERSION}"
+            echo "REDIRECT_PKG_HANDLER_VERSION=${REDIRECT_PKG_HANDLER_VERSION}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check and update versions
+        id: changes
+        env:
+          APPLICATION_VERSION: ${{ steps.versions.outputs.APPLICATION_VERSION }}
+          REDIRECT_PKG_HANDLER_VERSION: ${{ steps.versions.outputs.REDIRECT_PKG_HANDLER_VERSION }}
+        run: |
+          set -euo pipefail
+          
+          CURRENT_APPLICATION_VERSION="$(
+            sed -n 's/^${{ matrix.settings.application_version_name }}=//p' ${{ matrix.settings.version_file }}
+          )"
+          
+          CURRENT_REDIRECT_PKG_HANDLER_VERSION="$(
+            sed -n 's/^REDIRECT_PKG_HANDLER_VERSION=//p' ${{ matrix.settings.version_file }}
+          )"
+          
+          echo "Current versions:"
+          echo "  ${{ matrix.settings.application_version_name }}=${CURRENT_APPLICATION_VERSION}"
+          echo "  REDIRECT_PKG_HANDLER_VERSION=${CURRENT_REDIRECT_PKG_HANDLER_VERSION}"
+          
+          echo "Latest versions:"
+          echo "  ${{ matrix.settings.application_version_name }}=${APPLICATION_VERSION}"
+          echo "  REDIRECT_PKG_HANDLER_VERSION=${REDIRECT_PKG_HANDLER_VERSION}"
+          
+          if [[ \
+            "CURRENT_APPLICATION_VERSION" == "$APPLICATION_VERSION" &&
+            "$CURRENT_REDIRECT_PKG_HANDLER_VERSION" == "$REDIRECT_PKG_HANDLER_VERSION"
+          ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Versions unchanged. Nothing to update."
+            exit 0
+          fi
+          
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "Versions changed. Updating version file."
+          
+          cat > ${{ matrix.settings.version_file }} <<EOF
+          ${{ matrix.settings.application_version_name }}=${APPLICATION_VERSION}
+          REDIRECT_PKG_HANDLER_VERSION=${REDIRECT_PKG_HANDLER_VERSION}
+          EOF
+
+#      - name: Commit changes
+#        if: steps.changes.outputs.changed == 'true'
+#        env:
+#          APPLICATION_VERSION: ${{ steps.versions.outputs.APPLICATION_VERSION }}
+#          REDIRECT_PKG_HANDLER_VERSION: ${{ steps.versions.outputs.REDIRECT_PKG_HANDLER_VERSION }}
+#        run: |
+#          set -euo pipefail
+#
+#          git config user.name "github-actions[bot]"
+#          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+#
+#          git add ${{ matrix.settings.version_file }}
+#
+#          git commit \
+#            -m "chore(${{ matrix.settings.name }}): update versions to ${APPLICATION_VERSION}-${REDIRECT_PKG_HANDLER_VERSION}"
+#
+#          git push
