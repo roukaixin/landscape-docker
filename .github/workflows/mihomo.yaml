@@ -1,4 +1,4 @@
-name: build sing-box docker image
+name: build mihomo docker image
 
 on:
   push:
