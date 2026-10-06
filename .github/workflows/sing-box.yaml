@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - "docker/sing-box/**"
-      - ".github/workflows/sing-box.yaml"
 
 permissions:
   contents: read
@@ -12,8 +11,6 @@ permissions:
 
 env:
   REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/sing-box
-  SING_BOX_VERSION: v1.14.2
-  REDIRECT_PKG_HANDLER_VERSION: v0.25.1
 
 jobs:
   builds:
@@ -22,19 +19,36 @@ jobs:
       fail-fast: true
       matrix:
         settings:
-          - platform: linux/arm64
-            pkg_arch: aarch64-static
-          - platform: linux/loong64
-            pkg_arch: loongarch64-static
-          - platform: linux/riscv64
-            pkg_arch: riscv64-static
-          - platform: linux/s390x
+          - docker_platform: linux/arm64
+            pkg_arch: aarch64
+            static: true
+          - docker_platform: linux/loong64
+            pkg_arch: loongarch64
+            static: true
+          - docker_platform: linux/riscv64
+            pkg_arch: riscv64
+            static: true
+          - docker_platform: linux/s390x
             pkg_arch: s390x
-          - platform: linux/amd64
-            pkg_arch: x86_64-static
+            static: false
+          - docker_platform: linux/amd64
+            pkg_arch: x86_64
+            static: true
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Read versions
+        run: |
+          cat docker/sing-box/version >> "$GITHUB_ENV"
+
+      - name: Set redirect architecture
+        run: |
+          if [[ "${{ matrix.settings.static }}" == "true" ]]; then
+            echo "REDIRECT_ARCH=${{ matrix.settings.pkg_arch }}-static" >> "$GITHUB_ENV"
+          else
+            echo "REDIRECT_ARCH=${{ matrix.settings.pkg_arch }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Docker metadata
         id: meta
@@ -63,8 +77,8 @@ jobs:
           build-args: |
             SING_BOX_VERSION=${{ env.SING_BOX_VERSION }}
             REDIRECT_PKG_HANDLER_VERSION=${{ env.REDIRECT_PKG_HANDLER_VERSION }}
-            REDIRECT_ARCH=${{ matrix.settings.pkg_arch }}
-          platforms: ${{ matrix.settings.platform }}
+            REDIRECT_ARCH=${{ env.REDIRECT_ARCH }}
+          platforms: ${{ matrix.settings.docker_platform }}
           provenance: false
           sbom: false
           labels: ${{ steps.meta.outputs.labels }}
@@ -89,6 +103,13 @@ jobs:
     needs:
       - builds
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Read versions
+        run: |
+          cat docker/sing-box/version >> "$GITHUB_ENV"
+
       - name: Download digests
         uses: actions/download-artifact@v7
         with:
