@@ -11,7 +11,7 @@ permissions:
 
 env:
   NAME: mihomo
-  REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/${{ env.NAME }}
+  REGISTRY_IMAGE: ghcr.io/${{ github.repository }}/mihomo
 
 jobs:
   builds:
