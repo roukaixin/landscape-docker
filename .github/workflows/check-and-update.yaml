@@ -14,13 +14,15 @@ jobs:
   update:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
+      max-parallel: 1
       matrix:
         settings:
           - name: sing-box
             application_repo: SagerNet/sing-box
             application_version_name: SING_BOX_VERSION
             version_file: docker/sing-box/version
+
           - name: mihomo
             application_repo: MetaCubeX/mihomo
             application_version_name: MIHOMO_VERSION
@@ -29,11 +31,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          token: '${{ secrets.GH_PAT }}'
 
       - name: Get latest versions
         id: versions
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: '${{ secrets.GH_PAT }}'
         run: |
           set -euo pipefail
           
@@ -64,11 +68,11 @@ jobs:
           set -euo pipefail
           
           CURRENT_APPLICATION_VERSION="$(
-            sed -n 's/^${{ matrix.settings.application_version_name }}=//p' ${{ matrix.settings.version_file }}
+            sed -n 's/^${{ matrix.settings.application_version_name }}=//p' "${{ matrix.settings.version_file }}"
           )"
           
           CURRENT_REDIRECT_PKG_HANDLER_VERSION="$(
-            sed -n 's/^REDIRECT_PKG_HANDLER_VERSION=//p' ${{ matrix.settings.version_file }}
+            sed -n 's/^REDIRECT_PKG_HANDLER_VERSION=//p' "${{ matrix.settings.version_file }}"
           )"
           
           echo "Current versions:"
@@ -80,7 +84,7 @@ jobs:
           echo "  REDIRECT_PKG_HANDLER_VERSION=${REDIRECT_PKG_HANDLER_VERSION}"
           
           if [[ \
-            "CURRENT_APPLICATION_VERSION" == "$APPLICATION_VERSION" &&
+            "$CURRENT_APPLICATION_VERSION" == "$APPLICATION_VERSION" &&
             "$CURRENT_REDIRECT_PKG_HANDLER_VERSION" == "$REDIRECT_PKG_HANDLER_VERSION"
           ]]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -91,10 +95,10 @@ jobs:
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "Versions changed. Updating version file."
           
-          cat > ${{ matrix.settings.version_file }} <<EOF
-          ${{ matrix.settings.application_version_name }}=${APPLICATION_VERSION}
-          REDIRECT_PKG_HANDLER_VERSION=${REDIRECT_PKG_HANDLER_VERSION}
-          EOF
+          printf '%s\n' \
+          "${{ matrix.settings.application_version_name }}=${APPLICATION_VERSION}" \
+          "REDIRECT_PKG_HANDLER_VERSION=${REDIRECT_PKG_HANDLER_VERSION}" \
+          > "${{ matrix.settings.version_file }}"
 
       - name: Commit changes
         if: steps.changes.outputs.changed == 'true'
@@ -107,7 +111,7 @@ jobs:
           git config user.name "roukaixin"
           git config user.email "a3427173515@163.com"
 
-          git add ${{ matrix.settings.version_file }}
+          git add "${{ matrix.settings.version_file }}"
 
           git commit \
             -m "chore(${{ matrix.settings.name }}): update versions to ${APPLICATION_VERSION}-${REDIRECT_PKG_HANDLER_VERSION}"
