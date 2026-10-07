@@ -1,11 +1,7 @@
 services:
   sing-box:
-    image: ghcr.io/roukaixin/landscape-docker/sing-box:v1.14.0-v0.25.0
+    image: ghcr.io/roukaixin/landscape-docker/sing-box:v1.14.2-v0.25.3
     container_name: "sing-box"
-    ports:
-      - "9090:9090"
-      - "7890:7890"
-    restart: unless-stopped
     environment:
       LAND_PROXY_ENABLE_ICMP_PASSTHROUGH: true
       LAND_PROXY_ICMP_MARK_VALUE: 200
@@ -21,6 +17,10 @@ services:
     volumes:
       - "${LANDSCAPE_CONFIG_DIR}/unix_link/:/ld_unix_link/:ro"
       - "./data:/sing-box"
+    ports:
+      - "9090:9090"
+      - "7890:7890"
+    restart: unless-stopped
     logging:
       driver: "json-file"
       options:
