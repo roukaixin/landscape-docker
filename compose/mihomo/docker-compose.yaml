@@ -1,0 +1,28 @@
+services:
+  mihomo:
+    image: ghcr.io/roukaixin/landscape-docker/mihomo:v1.19.32-v0.25.3
+    container_name: "mihomo"
+    environment:
+      LAND_PROXY_ENABLE_ICMP_PASSTHROUGH: true
+      LAND_PROXY_ICMP_MARK_VALUE: 200
+    sysctls:
+      net.ipv4.conf.lo.accept_local: "1"
+      net.ipv6.conf.all.forwarding: "1"
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - BPF
+      - PERFMON
+    privileged: true
+    volumes:
+      - "${LANDSCAPE_CONFIG_DIR}/unix_link/:/ld_unix_link/:ro"
+      - "./data:/mihomo"
+    ports:
+      - "9090:9090"
+      - "7890:7890"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2m"
+        max-file: "1"
