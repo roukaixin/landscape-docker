@@ -23,7 +23,7 @@ ARG REDIRECT_PKG_URL=https://github.com/ThisSeanZhang/landscape/releases/downloa
 RUN apk update && \
     apk add --no-cache libgcc libelf s6-overlay iptables
 
-COPY --from=builder /mihomo/mihomo /usr/bin
+COPY --from=builder --chmod=755 /mihomo/mihomo /usr/bin
 
 ADD --chmod=755 ${REDIRECT_PKG_URL} /redirect_pkg_handler
 
