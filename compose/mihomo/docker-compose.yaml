@@ -3,7 +3,7 @@ services:
     image: ghcr.io/roukaixin/landscape-docker/mihomo:v1.19.32-v0.25.3
     container_name: "mihomo"
     environment:
-      LAND_PROXY_ENABLE_ICMP_PASSTHROUGH: true
+      LAND_PROXY_ENABLE_ICMP_PASSTHROUGH: "true"
       LAND_PROXY_ICMP_MARK_VALUE: 200
     sysctls:
       net.ipv4.conf.lo.accept_local: "1"
